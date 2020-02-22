@@ -96,7 +96,7 @@ class CustomModel(QtCore.QAbstractItemModel):
         node = index.internalPointer()
         if role == QtCore.Qt.DisplayRole:
             return node.data(index.column())
-        if role == QtCore.Qt.BackgroundRole:
+        if role == QtCore.Qt.BackgroundColorRole:
             if node.display_color == 'red':
                 return QtGui.QColor(QtCore.Qt.red)
             elif node.display_color == 'green':
@@ -104,7 +104,7 @@ class CustomModel(QtCore.QAbstractItemModel):
         return None
 
     def insertRow(self, parent_index=None, *args, **kwargs):
-        self.addChild(CustomNode(['1','2','3']), parent_index)
+        self.addChild(CustomNode([1,2,3]), parent_index)
 
 
 class MyTree(Ui_MainWindow, QtWidgets.QMainWindow):
@@ -112,11 +112,16 @@ class MyTree(Ui_MainWindow, QtWidgets.QMainWindow):
         super(MyTree, self).__init__()
         self.setupUi(self)
         self._tree_items = []
-        for i in 'abc':
+        for i in '1234567890':
             self._tree_items.append(CustomNode(i))
-            self._tree_items[-1].addChild(CustomNode(['d', 'e', 'f']))
-            self._tree_items[-1].addChild(CustomNode(['g', 'h', 'i']))
+            # self._tree_items[-1].addChild(CustomNode(['d']))
+            # self._tree_items[-1].addChild(CustomNode(['d', 'e', 'f']))
+            # self._tree_items[-1].addChild(CustomNode(['g', 'h', 'i']))
 
+            test_run_node = CustomNode('Test Run')
+            for i in range(5):
+                test_run_node.addChild(CustomNode(['parameter', 'expected', 'measured', 'description']))
+            self._tree_items[-1].addChild(test_run_node)
         self.treeView.setModel(CustomModel(self._tree_items))
         self.pushButton.clicked.connect(self.add_item)
 
@@ -125,8 +130,9 @@ class MyTree(Ui_MainWindow, QtWidgets.QMainWindow):
             parent_node_index = self.treeView.currentIndex()
             print(parent_node_index.internalPointer()._data)
             parent_node_index.internalPointer().display_color = 'green'
+            # self.treeView.model().beginResetModel()
             self.treeView.model().insertRow(parent_index=parent_node_index)
-
+            # self.treeView.model().endResetModel()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
